@@ -1,9 +1,9 @@
-const processFile = require("../middleware/upload");
+const processFile = require("../middlewares/upload");
 const { format } = require("util");
 const { Storage } = require("@google-cloud/storage");
 // Instantiate a storage client with credentials
 const storage = new Storage({ keyFilename: "tensortravels-key.json" });
-const bucket = storage.bucket("t-t-img-upload");
+const bucket = storage.bucket("tt-img-upload");
 
 const upload = async (req, res) => {
   try {
@@ -50,7 +50,7 @@ const upload = async (req, res) => {
   } catch (err) {
     if (err.code == "LIMIT_FILE_SIZE") {
         return res.status(500).send({
-          message: "File size cannot be larger than 2MB!",
+          message: "File size cannot be larger than 2GB!",
         });
     }
     res.status(500).send({

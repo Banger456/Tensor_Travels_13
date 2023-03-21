@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "tensortravels-381022",
+  "private_key_id": "aac90b631913ea3b07589fea2a565f2421f52c43",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQD1RZ5vI3W/j/GU\nLDasC4/rdLzcz/3BTU7I2swYNsghGGKXuQcFMazhedcCtKJO0qPRsB0V0ElbwdHw\n0gVo2Z+3WvB6dIlVLN2zpf68Ots7mGI5qqxm3MNX8VXy7hHMZJTNukYa8dpr56hV\n3Adp7jVLZ53GPD5MyarKFKddZMqNjnvu+8/5GZgENNZb2ymgSCEhCFXvYaztIFAv\nIM4LKwRYrxaKO1R2r8oMBEsC+MoRTUAhTPxOBKz7DX2/aD91UndC+IswSkZKTmi+\nZFYDWC2DB3j4cUPKaT/swA85eoPI0+bwUUbNKqy5D2rzhAKq7KzN12dw0R9ZUF6z\nZuo6Vi7jAgMBAAECggEAB6ymwdMtwWUpUSr2h+UgabOkAhy/U7tfDvDocQK/pi0k\nsTh8bXC3ZI633i2mldr0zPZiNQ6GSWZmXx3h95pdw+sahpCFYRUL/yPLl+uNr6Al\ndln/s+ZmnRy/4qSmzohsrujHLz3hIbldIkUUq9gCQVqFtlyA0P6T8QU64dwlCbuR\nm1WX2kPnFtbcs0N76US6ea5qHL6wU4B6rEq/JBdnQrSA4OxTSTaMgxpn6n3yEe8g\nP0HQ2EJ+ArGLKEIY01XbR1Glj9maSeV20tWV2/TCjqrwo3mZEaQYHus1O8p5XA2m\nefANJw0xqY7VpLMAdEqpYCra40ntJpG02r0xdSS50QKBgQD8DttlJPrTW+4yW8Vb\n6/hX56lflMjwzl3t9v5mx2pTl3B3SciG1wfcL7ZLlS81bgycFxDF9b9sOKwaMgZY\nGx4yedT2N9hFyyrYOiXd9EplkYfL2P2XHT12CAOLbMmznIIZp15bfnkPX94/44CA\nhGk8iuEsMhlSV/m6IXsqIc92vwKBgQD5G5fPC5R3wkmKZuRzUmUs5EqcOlhp84WE\nNs4GOeO6CYI92gZgiD62lwwvaMDjCIzxmsYGCBwPbJCiuiY1uiGK8/f4RZ/Pi3sh\nxkgZy1Ac6AkCuxuuMVZv4b9H3dvw8zB4dskzmLDLsfplS+UiPvBcONSfio7MWRSv\nChah8DpU3QKBgQC0Jgo4aA29Ml80LtMHt8dvTGuJnNVhBp2rjnSVEMG1rO780wc3\nGEjN3mvz6VQsY9MvXGzoj5OYzYhz0H0oS3lxqhHDSHaSq3qbwDOARzFFFpZv406b\nypI64c9mvwIKFToHC9AspF/x1RsLnpYhRIHSe5Aj/kqKx8X8eiGFI1UcEQKBgHGD\niWHnvPf1qN1QlbmXSlNylC0syS0+sxDUiH1906/qtVbKCy3h5/H8Uqkn6v2J3/AY\nvzPwbhj5N89vVAoXj0Fqewy/bVt+C9YQLLrUUuVZNwHvkWWHRgQlsqxlBNx/dQ7v\n0i+Y3Ld1msyeEQPR+mWL4BfzY67qyOoahsW0WmBhAoGBAOFcQqRm9qH1MujxDQVN\nL0w2wkrqojW+XHFco0ml1Tj37pYGMd4CnyE6iG18beqi6VJUcHnt/ZPAFlo7P0bN\naLdw9saBc57A1+wLfaP7SZJM/ZEQ8AyYc+X1ezE/Nnfth6aXssr9Tn0N7tHaj/Lm\nNz+S95lh8e/grq1fED59Sx10\n-----END PRIVATE KEY-----\n",
+  "client_email": "tensor-travels@tensortravels-381022.iam.gserviceaccount.com",
+  "client_id": "105261511280480348265",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/tensor-travels%40tensortravels-381022.iam.gserviceaccount.com"
+}
