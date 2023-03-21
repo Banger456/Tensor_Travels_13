@@ -1,110 +1,71 @@
-const config = require("../config/auth.config");
+
 const db = require("../models");
 const User = db.user;
 const Role = db.role;
 require('dotenv').config();
 
-var jwt = require("jsonwebtoken");
-var bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
-exports.signup = (req, res) => {
+exports.signup = async (req, res) => {
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
   const user = new User({
     username: req.body.username,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 8)
+    password: hashedPassword
   });
 
-  user.save((err, user) => {
-    if (err) {
-      res.status(500).send({ message: err });
-      return;
-    }
+  try {
+    const savedUser = await user.save();
 
     if (req.body.roles) {
-      Role.find(
-        {
-          name: { $in: req.body.roles }
-        },
-        (err, roles) => {
-          if (err) {
-            res.status(500).send({ message: err });
-            return;
-          }
-
-          user.roles = roles.map(role => role._id);
-          user.save(err => {
-            if (err) {
-              res.status(500).send({ message: err });
-              return;
-            }
-
-            res.send({ message: "User was registered successfully!" });
-          });
-        }
-      );
+      const roles = await Role.find({ name: { $in: req.body.roles } });
+      savedUser.roles = roles.map(role => role._id);
     } else {
-      Role.findOne({ name: "user" }, (err, role) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-
-        user.roles = [role._id];
-        user.save(err => {
-          if (err) {
-            res.status(500).send({ message: err });
-            return;
-          }
-
-          res.send({ message: "User was registered successfully!" });
-        });
-      });
+      const role = await Role.findOne({ name: "user" });
+      savedUser.roles = [role._id];
     }
-  });
+
+    await savedUser.save();
+    res.send({ message: "User was registered successfully!" });
+  } catch (err) {
+    res.status(500).send({ message: err });
+  }
 };
 
-exports.signin = (req, res) => {
-  User.findOne({
-    username: req.body.username
-  })
-    .populate("roles", "-__v")
-    .exec((err, user) => {
-      if (err) {
-        res.status(500).send({ message: err });
-        return;
-      }
+exports.signin = async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.body.username }).populate("roles", "-__v").exec();
 
-      if (!user) {
-        return res.status(404).send({ message: "User Not found." });
-      }
+    if (!user) {
+      return res.status(404).send({ message: "User Not found." });
+    }
 
-      var passwordIsValid = bcrypt.compareSync(
-        req.body.password,
-        user.password
-      );
+    const passwordIsValid = await bcrypt.compare(req.body.password, user.password);
 
-      if (!passwordIsValid) {
-        return res.status(401).send({
-          accessToken: null,
-          message: "Invalid Password!"
-        });
-      }
-
-      var token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-        expiresIn: 86400 // 24 hours
+    if (!passwordIsValid) {
+      return res.status(401).send({
+        accessToken: null,
+        message: "Invalid Password!"
       });
+    }
 
-      var authorities = [];
-
-      for (let i = 0; i < user.roles.length; i++) {
-        authorities.push("ROLE_" + user.roles[i].name.toUpperCase());
-      }
-      res.status(200).send({
-        id: user._id,
-        username: user.username,
-        email: user.email,
-        roles: authorities,
-        accessToken: token
-      });
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      expiresIn: 86400 // 24 hours
     });
+
+    const authorities = user.roles.map(role => "ROLE_" + role.name.toUpperCase());
+
+    res.status(200).send({
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      roles: authorities,
+      accessToken: token
+    });
+  } catch (err) {
+    res.status(500).send({ message: err });
+  }
 };

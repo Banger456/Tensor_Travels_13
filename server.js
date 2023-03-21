@@ -1,11 +1,12 @@
+const dotenv = require('dotenv');
 const express = require("express");
 const cors = require("cors");
 const path = __dirname + '/app/views/';
 const fileRoutes = require('./app/routes/file.routes');
-require('dotenv').config();
-
 
 const app = express();
+
+dotenv.config();
 
 app.use(express.static(path));
 
@@ -38,13 +39,14 @@ app.get('/', function (req,res) {
 });
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+const Port = process.env.PORT || 8080;
+app.listen(Port, () => {
+  console.log(`Server is running on port ${Port}.`);
 });
 
 const db = require("./app/models");
 const Role = db.role;
+
 
 db.mongoose
   .connect(process.env.MONGODB_URI, {

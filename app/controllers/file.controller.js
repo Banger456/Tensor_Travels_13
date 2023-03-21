@@ -1,9 +1,10 @@
+require('dotenv').config();
 const processFile = require("../middlewares/upload");
 const { format } = require("util");
 const { Storage } = require("@google-cloud/storage");
 const Photo = require('../models/photo.model.js')
 // Instantiate a storage client with credentials
-const storage = new Storage({ keyFilename: "tensortravels-key.json" });
+const storage = new Storage({ keyfilename: process.env.GCLOUD_APPLICATION_CREDENTIALS });
 const bucket = storage.bucket("tt-img-upload");
 
 const upload = async (req, res) => {
