@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
-const config = require("../config/auth.config.js");
+const config = {
+  secret: process.env.SECRET_KEY,
+};
 const db = require("../models");
 
 const Role = db.role;
@@ -17,6 +19,9 @@ verifyToken = (req, res, next) => {
       return res.status(401).send({ message: "Unauthorized!" });
     }
     req.userId = decoded.id;
+    req.user = {
+      id: decoded.id,
+    }
     next();
   });
 };

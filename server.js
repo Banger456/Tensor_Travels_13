@@ -1,7 +1,8 @@
 const express = require("express");
 const cors = require("cors");
-const dbConfig = require("./app/config/db.config");
 const path = __dirname + '/app/views/';
+const fileRoutes = require('../routes/file.routes.js');
+
 
 const app = express();
 
@@ -36,7 +37,7 @@ app.get('/', function (req,res) {
 });
 
 // set port, listen for requests
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
@@ -45,7 +46,7 @@ const db = require("./app/models");
 const Role = db.role;
 
 db.mongoose
-  .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
+  .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
@@ -57,6 +58,8 @@ db.mongoose
     console.error("Connection error", err);
     process.exit();
   });
+
+  app.use('/api/files', fileRoutes);
 
 function initial() {
   Role.estimatedDocumentCount((err, count) => {

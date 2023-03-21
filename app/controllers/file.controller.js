@@ -1,6 +1,7 @@
 const processFile = require("../middlewares/upload");
 const { format } = require("util");
 const { Storage } = require("@google-cloud/storage");
+const Photo = require('../models/photo.model.js')
 // Instantiate a storage client with credentials
 const storage = new Storage({ keyFilename: "tensortravels-key.json" });
 const bucket = storage.bucket("tt-img-upload");
@@ -13,8 +14,13 @@ const upload = async (req, res) => {
       return res.status(400).send({ message: "Please upload a file!" });
     } 
 
+    const userId = req.user.id;
+
+    // Include the userId in the file name
+    const fileName = `${userId}_${req.file.originalname}`;
+
     // Create a new blob in the bucket and upload the file data.
-    const blob = bucket.file(req.file.originalname);
+    const blob = bucket.file(fileName);
     const blobStream = blob.createWriteStream({
       resumable: false,
     });
@@ -31,7 +37,7 @@ const upload = async (req, res) => {
 
       try {
         // Make the file public
-        await bucket.file(req.file.originalname).makePublic();
+        await bucket.file(fileName).makePublic();
       } catch {
         return res.status(500).send({
           message:
@@ -39,6 +45,48 @@ const upload = async (req, res) => {
           url: publicUrl,
         });
       }
+
+      // file.controller.js
+
+const Photo = require('../models/photo.model'); // Import your Photo model
+
+async (data) => {
+  // Create URL for directly file access via HTTP.
+  const publicUrl = format(
+    `https://storage.googleapis.com/${bucket.name}/${blob.name}`
+  );
+
+  try {
+    // Make the file public
+    await bucket.file(fileName).makePublic();
+  } catch {
+    return res.status(500).send({
+      message:
+        `Uploaded the file successfully: ${req.file.originalname}, but public access is denied!`,
+      url: publicUrl,
+    });
+  }
+
+  // Save the photo schema to MongoDB
+  const newPhoto = new Photo({
+    user: req.userId, 
+    category: req.body.category, 
+    url: publicUrl,
+    fileName: req.file.originalname,
+  });
+
+  newPhoto.save((err) => {
+    if (err) {
+      res.status(500).send({ message: 'Error saving photo schema to MongoDB' });
+      return;
+    }
+
+    res.status(200).send({
+      message: "Uploaded the file successfully: " + req.file.originalname,
+      url: publicUrl,
+    });
+  });
+}
 
       res.status(200).send({
         message: "Uploaded the file successfully: " + req.file.originalname,
