@@ -1,7 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const path = __dirname + '/app/views/';
-const fileRoutes = require('../routes/file.routes.js');
+const fileRoutes = require('./app/routes/file.routes');
+require('dotenv').config();
 
 
 const app = express();
@@ -14,7 +15,7 @@ var corsOption = {
 
 app.use(cors(corsOption));
 
-const initRoutes = require("./app/routes");
+const initRoutes = require("./app/routes/file.routes");
 
 // parse requests of content-type - application/json
 app.use(express.json());
@@ -37,7 +38,7 @@ app.get('/', function (req,res) {
 });
 
 // set port, listen for requests
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });

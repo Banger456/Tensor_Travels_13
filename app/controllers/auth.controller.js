@@ -2,6 +2,7 @@ const config = require("../config/auth.config");
 const db = require("../models");
 const User = db.user;
 const Role = db.role;
+require('dotenv').config();
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -89,7 +90,7 @@ exports.signin = (req, res) => {
         });
       }
 
-      var token = jwt.sign({ id: user.id }, config.secret, {
+      var token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
         expiresIn: 86400 // 24 hours
       });
 
