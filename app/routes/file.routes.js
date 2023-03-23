@@ -15,11 +15,14 @@ module.exports = function (app) {
 
 let routes = (app) => {
   router.post("/api/photos/upload", [authJwt.verifyToken] ,controller.upload);
-  router.get("/api/photos/files", [authJwt.verifyToken] ,controller.getListFiles);
   router.get("/api/photos/files/:name", [authJwt.verifyToken] ,controller.download);
-  router.post("api/photos/:id/vote", [authJwt.verifyToken] ,controller.vote);
 
   app.use(router);
+};
+
+module.exports = function (app) {
+  app.get("/api/photos", controller.getPhotos);
+  app.post("/api/photos/vote/:photoId", [authJwt.verifyToken, controller.vote]);
 };
 
 module.exports = routes;

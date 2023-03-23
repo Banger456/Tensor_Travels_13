@@ -123,7 +123,7 @@ const download = async (req, res) => {
 
 const vote = async (req, res) => {
     try {
-      const photo = await Photo.findById(req.params.id);
+      const photo = await Photo.findById(req.params.photoId);
       if (!photo) {
         return res.status(404).send({message: "Oops! Photo not found!"});
       }
@@ -135,6 +135,16 @@ const vote = async (req, res) => {
     res.status(500).send({ message: err });
   }
 };
+
+exports.getPhotos = async (req, res) => {
+  try {
+    const photos = await Photo.find().populate("category").exec();
+    res.status(200).send(photos);
+  } catch (err) {
+    res.status(500).send({ message: err.message});
+  }
+};
+
   module.exports = {
     upload,
     getListFiles,
