@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
+const Category = require("./category.model");
 
 const PhotoSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Assuming you have a User model
+    ref: 'User', 
     required: true,
   },
   url: {
@@ -12,6 +13,11 @@ const PhotoSchema = new mongoose.Schema({
   },
   fileName: {
     type: String,
+    required: true,
+  },
+  category: {
+    type: String,
+    ref: "Category",
     required: true,
   },
   approved: {

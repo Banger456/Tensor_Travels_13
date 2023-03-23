@@ -3,8 +3,9 @@ const express = require("express");
 const cors = require("cors");
 const path = require('path');
 const fileRoutes = require('./app/routes/file.routes');
+const redis = require("redis");
 
-
+const redisClient = redis.createClient();
 const app = express();
 
 dotenv.config();

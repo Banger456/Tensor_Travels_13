@@ -3,12 +3,13 @@ const processFile = require("../middlewares/upload");
 const { format } = require("util");
 const { Storage } = require("@google-cloud/storage");
 const Photo = require('../models/photo.model.js')
+const Category = require("../models/category.model");
 // Instantiate a storage client with credentials
 const storage = new Storage({ keyFilename: process.env.GCLOUD_APPLICATION_CREDENTIALS,
 projectId: process.env.GCLOUD_PROJECT });
 const bucket = storage.bucket(process.env.GCLOUD_BUCKET);
 
-const upload = async (req, res) => {
+const upload = async (req, res, category) => {
   try {
     await processFile(req, res);
 
@@ -45,11 +46,18 @@ const upload = async (req, res) => {
           url: publicUrl,
         });
       }
+
+      const foundCategory = await Category.findOne({name: category});
+
+      if (!foundCategory) {
+        return res.status(400).send({ message: "Invalid category"});
+      }
   // Save the photo schema to MongoDB
   const newPhoto = new Photo({
     user: req.user.id, 
     url: publicUrl,
     fileName: req.file.originalname,
+    category: foundCategory._id,
     approved: false,
     votes: 0,
   });
