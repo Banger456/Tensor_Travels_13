@@ -3,9 +3,9 @@ const router = express.Router();
 const controller = require("../controllers/file.controller");
 
 let routes = (app) => {
-  router.post("/upload", controller.upload);
-  router.get("/files", controller.getListFiles);
-  router.get("/files/:name", controller.download);
+  router.post("/api/photos/upload", controller.upload);
+  router.get("/api/photos/files", controller.getListFiles);
+  router.get("/api/photos/files/:name", controller.download);
 
   app.use(router);
 };

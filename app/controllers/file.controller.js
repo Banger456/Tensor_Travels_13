@@ -4,8 +4,9 @@ const { format } = require("util");
 const { Storage } = require("@google-cloud/storage");
 const Photo = require('../models/photo.model.js')
 // Instantiate a storage client with credentials
-const storage = new Storage({ keyfilename: process.env.GCLOUD_APPLICATION_CREDENTIALS });
-const bucket = storage.bucket("tt-img-upload");
+const storage = new Storage({ keyfilename: process.env.GCLOUD_APPLICATION_CREDENTIAL,
+projectId: process.env.GCLOUD_PROJECT });
+const bucket = storage.bucket(process.env.GCLOUD_BUCKET);
 
 const upload = async (req, res) => {
   try {
@@ -15,10 +16,11 @@ const upload = async (req, res) => {
       return res.status(400).send({ message: "Please upload a file!" });
     } 
 
-    const userId = req.user.id;
-
+    //const userId = req.user.id;
+    //console.log(req.body, userId);    
+    
     // Include the userId in the file name
-    const fileName = `${userId}_${req.file.originalname}`;
+    const fileName = `${req.file.originalname}`;
 
     // Create a new blob in the bucket and upload the file data.
     const blob = bucket.file(fileName);
@@ -46,31 +48,9 @@ const upload = async (req, res) => {
           url: publicUrl,
         });
       }
-
-      // file.controller.js
-
-const Photo = require('../models/photo.model'); // Import your Photo model
-
-async (data) => {
-  // Create URL for directly file access via HTTP.
-  const publicUrl = format(
-    `https://storage.googleapis.com/${bucket.name}/${blob.name}`
-  );
-
-  try {
-    // Make the file public
-    await bucket.file(fileName).makePublic();
-  } catch {
-    return res.status(500).send({
-      message:
-        `Uploaded the file successfully: ${req.file.originalname}, but public access is denied!`,
-      url: publicUrl,
-    });
-  }
-
   // Save the photo schema to MongoDB
   const newPhoto = new Photo({
-    user: req.userId, 
+    user: req.body.userId, 
     category: req.body.category, 
     url: publicUrl,
     fileName: req.file.originalname,
@@ -87,14 +67,7 @@ async (data) => {
       url: publicUrl,
     });
   });
-}
-
-      res.status(200).send({
-        message: "Uploaded the file successfully: " + req.file.originalname,
-        url: publicUrl,
-      });
-    });
-
+});
     blobStream.end(req.file.buffer);
   } catch (err) {
     if (err.code == "LIMIT_FILE_SIZE") {
