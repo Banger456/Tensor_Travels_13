@@ -1,14 +1,10 @@
 const mongoose = require('mongoose');
+const Category = require("./category.model");
 
 const PhotoSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Assuming you have a User model
-    required: true,
-  },
-  category: {
-    type: String,
-    enum: ["Potrait", "Landscape", "Architecture"],
+    ref: 'User', 
     required: true,
   },
   url: {
@@ -19,10 +15,16 @@ const PhotoSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  category: {
+    type: String,
+    ref: "Category",
+    required: true,
+  },
   approved: {
     type: Boolean,
     default: false,
   },
+  votes: { type: Number, default: 0 },
 }, {
   timestamps: true,
 });

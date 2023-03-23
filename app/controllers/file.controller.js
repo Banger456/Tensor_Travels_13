@@ -3,11 +3,13 @@ const processFile = require("../middlewares/upload");
 const { format } = require("util");
 const { Storage } = require("@google-cloud/storage");
 const Photo = require('../models/photo.model.js')
+const Category = require("../models/category.model");
 // Instantiate a storage client with credentials
-const storage = new Storage({ keyfilename: process.env.GCLOUD_APPLICATION_CREDENTIALS });
-const bucket = storage.bucket("tt-img-upload");
+const storage = new Storage({ keyFilename: process.env.GCLOUD_APPLICATION_CREDENTIALS,
+projectId: process.env.GCLOUD_PROJECT });
+const bucket = storage.bucket(process.env.GCLOUD_BUCKET);
 
-const upload = async (req, res) => {
+const upload = async (req, res, category) => {
   try {
     await processFile(req, res);
 
@@ -15,10 +17,8 @@ const upload = async (req, res) => {
       return res.status(400).send({ message: "Please upload a file!" });
     } 
 
-    const userId = req.user.id;
-
     // Include the userId in the file name
-    const fileName = `${userId}_${req.file.originalname}`;
+    const fileName = `${req.file.originalname}`;
 
     // Create a new blob in the bucket and upload the file data.
     const blob = bucket.file(fileName);
@@ -47,35 +47,21 @@ const upload = async (req, res) => {
         });
       }
 
-      // file.controller.js
+      const foundCategory = await Category.findOne({name: category});
 
-const Photo = require('../models/photo.model'); // Import your Photo model
-
-async (data) => {
-  // Create URL for directly file access via HTTP.
-  const publicUrl = format(
-    `https://storage.googleapis.com/${bucket.name}/${blob.name}`
-  );
-
-  try {
-    // Make the file public
-    await bucket.file(fileName).makePublic();
-  } catch {
-    return res.status(500).send({
-      message:
-        `Uploaded the file successfully: ${req.file.originalname}, but public access is denied!`,
-      url: publicUrl,
-    });
-  }
-
+      if (!foundCategory) {
+        return res.status(400).send({ message: "Invalid category"});
+      }
   // Save the photo schema to MongoDB
   const newPhoto = new Photo({
-    user: req.userId, 
-    category: req.body.category, 
+    user: req.user.id, 
     url: publicUrl,
     fileName: req.file.originalname,
+    category: foundCategory._id,
+    approved: false,
+    votes: 0,
   });
-
+  
   newPhoto.save((err) => {
     if (err) {
       res.status(500).send({ message: 'Error saving photo schema to MongoDB' });
@@ -87,14 +73,7 @@ async (data) => {
       url: publicUrl,
     });
   });
-}
-
-      res.status(200).send({
-        message: "Uploaded the file successfully: " + req.file.originalname,
-        url: publicUrl,
-      });
-    });
-
+  });
     blobStream.end(req.file.buffer);
   } catch (err) {
     if (err.code == "LIMIT_FILE_SIZE") {
@@ -128,9 +107,9 @@ const getListFiles = async (req, res) => {
         message: "Unable to read list of files!",
       });
     }
-  };
+};
   
-  const download = async (req, res) => {
+const download = async (req, res) => {
     try {
       const [metaData] = await bucket.file(req.params.name).getMetadata();
       res.redirect(metaData.mediaLink);
@@ -140,9 +119,25 @@ const getListFiles = async (req, res) => {
         message: "Could not download the file. " + err,
       });
     }
-  };
+};
+
+const vote = async (req, res) => {
+    try {
+      const photo = await Photo.findById(req.params.id);
+      if (!photo) {
+        return res.status(404).send({message: "Oops! Photo not found!"});
+      }
+    photo.votes += 1;
+    await photo.save();
+
+    res.status(200).send({ message: "Vote added successfully", photo });
+  } catch (err) {
+    res.status(500).send({ message: err });
+  }
+};
   module.exports = {
     upload,
     getListFiles,
     download,
+    vote,
   };

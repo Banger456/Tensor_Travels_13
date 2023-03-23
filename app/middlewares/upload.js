@@ -1,6 +1,6 @@
 const util = require("util");
 const Multer = require("multer");
-const maxSize = 2000000000;
+const maxSize = 10 * 1024 * 1024; //10mb
 
 let processFile = Multer({
   storage: Multer.memoryStorage(),

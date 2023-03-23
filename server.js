@@ -1,14 +1,23 @@
 const dotenv = require('dotenv');
 const express = require("express");
 const cors = require("cors");
-const path = __dirname + '/app/views/';
+const path = require('path');
 const fileRoutes = require('./app/routes/file.routes');
+const redis = require("redis");
 
+const redisClient = redis.createClient();
 const app = express();
 
+redisClient.on("connect", () => {
+  console.log("Connected to Redis server");
+});
+
+redisClient.on("error", (err) => {
+  console.log("Redis error: " + err);
+});
 dotenv.config();
 
-app.use(express.static(path));
+app.use(express.static(path.join(__dirname, 'build')));
 
 var corsOption = {
     origin: "http://localhost:8081"
@@ -99,3 +108,61 @@ function initial() {
     }
   });
 }
+
+const checkUserVote = (userId, photoId, callback) => {
+  redisClient.get(`user:${userId}:photo:${photoId}`, (err, vote) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null, vote !== null);
+  });
+};
+
+
+const saveUserVote = (userId, photoId, callback) => {
+  redisClient.set(`user:${userId}:photo:${photoId}`, 1, (err) => {
+    if (err) {
+      return callback(err);
+    }
+    callback(null);
+  });
+};
+
+app.post("/api/vote", (req, res) => {
+  const userId = req.user.id;
+  const photoId = req.body.photoId;
+
+  checkUserVote(userId, photoId, (err, hasVoted) => {
+    if (err) {
+      return res.status(500).send({ message: "Error checking user vote" });
+    }
+
+    if (hasVoted) {
+      return res.status(400).send({ message: "User has already voted" });
+    }
+
+    Photo.findByIdAndUpdate(
+      photoId,
+      { $inc: { vote: 1 } },
+      { new: true },
+      (err, updatedPhoto) => {
+        if (err) {
+          return res.status(500).send({ message: "Error updating photo votes" });
+        }
+      }
+    )
+
+   
+    saveUserVote(userId, photoId, (err) => {
+      if (err) {
+        return res.status(500).send({ message: "Error saving user vote" });
+      }
+
+      res.status(200).send({ message: "Vote saved successfully" });
+    });
+  });
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
