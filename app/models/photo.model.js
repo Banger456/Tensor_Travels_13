@@ -6,11 +6,6 @@ const PhotoSchema = new mongoose.Schema({
     ref: 'User', // Assuming you have a User model
     required: true,
   },
-  category: {
-    type: String,
-    enum: ["Potrait", "Landscape", "Architecture"],
-    required: true,
-  },
   url: {
     type: String,
     required: true,

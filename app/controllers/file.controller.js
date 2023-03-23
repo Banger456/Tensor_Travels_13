@@ -16,9 +16,6 @@ const upload = async (req, res) => {
       return res.status(400).send({ message: "Please upload a file!" });
     } 
 
-    userId = req.user._id;
-    console.log(req.body._id, userId);    
-    
     // Include the userId in the file name
     const fileName = `${req.file.originalname}`;
 
@@ -50,8 +47,7 @@ const upload = async (req, res) => {
       }
   // Save the photo schema to MongoDB
   const newPhoto = new Photo({
-    user: req.body.userId, 
-    category: req.body.category, 
+    user: req.user.id, 
     url: publicUrl,
     fileName: req.file.originalname,
     approved: false,

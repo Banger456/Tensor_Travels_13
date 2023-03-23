@@ -1,14 +1,15 @@
 const dotenv = require('dotenv');
 const express = require("express");
 const cors = require("cors");
-const path = __dirname + '/app/views/';
+const path = require('path');
 const fileRoutes = require('./app/routes/file.routes');
+
 
 const app = express();
 
 dotenv.config();
 
-app.use(express.static(path));
+app.use(express.static(path.join(__dirname, 'build')));
 
 var corsOption = {
     origin: "http://localhost:8081"
@@ -99,3 +100,7 @@ function initial() {
     }
   });
 }
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
