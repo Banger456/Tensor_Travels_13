@@ -4,7 +4,7 @@ const { format } = require("util");
 const { Storage } = require("@google-cloud/storage");
 const Photo = require('../models/photo.model.js')
 // Instantiate a storage client with credentials
-const storage = new Storage({ keyfilename: process.env.GCLOUD_APPLICATION_CREDENTIAL,
+const storage = new Storage({ keyFilename: process.env.GCLOUD_APPLICATION_CREDENTIALS,
 projectId: process.env.GCLOUD_PROJECT });
 const bucket = storage.bucket(process.env.GCLOUD_BUCKET);
 
@@ -16,8 +16,8 @@ const upload = async (req, res) => {
       return res.status(400).send({ message: "Please upload a file!" });
     } 
 
-    //const userId = req.user.id;
-    //console.log(req.body, userId);    
+    userId = req.user._id;
+    console.log(req.body._id, userId);    
     
     // Include the userId in the file name
     const fileName = `${req.file.originalname}`;
@@ -54,8 +54,10 @@ const upload = async (req, res) => {
     category: req.body.category, 
     url: publicUrl,
     fileName: req.file.originalname,
+    approved: false,
+    votes: 0,
   });
-
+  
   newPhoto.save((err) => {
     if (err) {
       res.status(500).send({ message: 'Error saving photo schema to MongoDB' });
@@ -67,7 +69,7 @@ const upload = async (req, res) => {
       url: publicUrl,
     });
   });
-});
+  });
     blobStream.end(req.file.buffer);
   } catch (err) {
     if (err.code == "LIMIT_FILE_SIZE") {
@@ -101,9 +103,9 @@ const getListFiles = async (req, res) => {
         message: "Unable to read list of files!",
       });
     }
-  };
+};
   
-  const download = async (req, res) => {
+const download = async (req, res) => {
     try {
       const [metaData] = await bucket.file(req.params.name).getMetadata();
       res.redirect(metaData.mediaLink);
@@ -113,9 +115,25 @@ const getListFiles = async (req, res) => {
         message: "Could not download the file. " + err,
       });
     }
-  };
+};
+
+const vote = async (req, res) => {
+    try {
+      const photo = await Photo.findById(req.params.id);
+      if (!photo) {
+        return res.status(404).send({message: "Oops! Photo not found!"});
+      }
+    photo.votes += 1;
+    await photo.save();
+
+    res.status(200).send({ message: "Vote added successfully", photo });
+  } catch (err) {
+    res.status(500).send({ message: err });
+  }
+};
   module.exports = {
     upload,
     getListFiles,
     download,
+    vote,
   };
