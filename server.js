@@ -4,6 +4,7 @@ const cors = require("cors");
 const path = require('path');
 const fileRoutes = require('./app/routes/file.routes');
 const redis = require("redis");
+require("./routes/category.routes")(app);
 
 const redisClient = redis.createClient();
 const app = express();

@@ -136,7 +136,7 @@ const vote = async (req, res) => {
   }
 };
 
-exports.getPhotos = async (req, res) => {
+const getPhotos = async (req, res) => {
   try {
     const photos = await Photo.find().populate("category").exec();
     res.status(200).send(photos);
@@ -150,4 +150,5 @@ exports.getPhotos = async (req, res) => {
     getListFiles,
     download,
     vote,
+    getPhotos,
   };

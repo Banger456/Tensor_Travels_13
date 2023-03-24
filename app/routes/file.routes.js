@@ -16,13 +16,10 @@ module.exports = function (app) {
 let routes = (app) => {
   router.post("/api/photos/upload", [authJwt.verifyToken] ,controller.upload);
   router.get("/api/photos/files/:name", [authJwt.verifyToken] ,controller.download);
+  router.get("/api/photos/get-photos", controller.getPhotos);
+  router.post("/api/photos/vote/:photoId", [authJwt.verifyToken, controller.vote]);
 
   app.use(router);
-};
-
-module.exports = function (app) {
-  app.get("/api/photos", controller.getPhotos);
-  app.post("/api/photos/vote/:photoId", [authJwt.verifyToken, controller.vote]);
 };
 
 module.exports = routes;
