@@ -69,3 +69,16 @@ exports.signin = async (req, res) => {
     res.status(500).send({ message: err });
   }
 };
+
+exports.logout = (req, res) => {
+  const token = req.headers['x-access-token'];
+  const expiresIn = 86400; // Token expiration time in seconds (24 hours)
+
+  // Store the token in Redis with the remaining time until expiration
+  redisClient.set(token, 'blacklisted', 'EX', expiresIn, (err) => {
+    if (err) {
+      return res.status(500).send({ message: 'Error logging out' });
+    }
+    res.status(200).send({ message: 'Logout successful' });
+  });
+};

@@ -1,21 +1,44 @@
 const dotenv = require('dotenv');
+
+const redis = require("redis");
+
+(async () => {
+  try { const redisClient = redis.createClient({ 
+        legacyMode: true,
+        socket: {
+          port: process.env.REDIS_PORT,
+          host: process.env.REDIS_HOST,
+          connectTimeout: 50000
+    }
+  });
+  await redisClient.connect();
+  console.log('Redis Client Connected');
+  } catch (err) {
+    console.log('Redis Client Connection Error', err);
+  }
+})()
+
+/*redisClient.connect();
+
+redisClient.on('connect', () => console.log('Redis Client Connected'));
+
+redisClient.on('error', (err) => console.log('Redis Client Connection Error', err)); */
+
 const express = require("express");
 const cors = require("cors");
 const path = require('path');
 const fileRoutes = require('./app/routes/file.routes');
-const redis = require("redis");
-require("./routes/category.routes")(app);
+const Photo = require('./app/models/photo.model');
 
-const redisClient = redis.createClient();
+
+const categoryRoutes = require("./app/routes/category.routes");
+
+
 const app = express();
 
-redisClient.on("connect", () => {
-  console.log("Connected to Redis server");
-});
 
-redisClient.on("error", (err) => {
-  console.log("Redis error: " + err);
-});
+
+
 dotenv.config();
 
 app.use(express.static(path.join(__dirname, 'build')));
@@ -34,6 +57,8 @@ app.use(express.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 initRoutes(app);
+
+categoryRoutes(app);
 
 // simple route
 app.get("/", (req, res) => {
@@ -85,16 +110,6 @@ function initial() {
         }
 
         console.log("added 'user' to roles collection");
-      });
-
-      new Role({
-        name: "moderator"
-      }).save(err => {
-        if (err) {
-          console.log("error", err);
-        }
-
-        console.log("added 'moderator' to roles collection");
       });
 
       new Role({

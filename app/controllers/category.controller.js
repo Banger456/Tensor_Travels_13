@@ -1,3 +1,5 @@
+const Category = require("../models/category.model");
+
 
 const addCategory = async (req, res) => {
     const categoryName = req.body.name;
@@ -18,6 +20,16 @@ const addCategory = async (req, res) => {
     }
   };
 
+  const getAllCategories = async (req, res) => {
+    try {
+        const categories = await Category.find();
+        res.status(200).json(categories);
+    } catch (error) {
+        res.status(500).json({message: 'Error getching categories'});
+    }
+  };
+
   module.exports = {
     addCategory,
+    getAllCategories,
   };
