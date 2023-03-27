@@ -9,7 +9,7 @@ const storage = new Storage({ keyFilename: process.env.GCLOUD_APPLICATION_CREDEN
 projectId: process.env.GCLOUD_PROJECT });
 const bucket = storage.bucket(process.env.GCLOUD_BUCKET);
 
-const upload = async (req, res, category) => {
+const upload = async (req, res, next) => {
   try {
     await processFile(req, res);
 
@@ -47,7 +47,10 @@ const upload = async (req, res, category) => {
         });
       }
 
-      const foundCategory = await Category.findOne({name: category});
+      const category = req.body.category;
+      const foundCategory = await Category.findOne({_id: category});
+
+    
 
       if (!foundCategory) {
         return res.status(400).send({ message: "Invalid category"});

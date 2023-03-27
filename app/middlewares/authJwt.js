@@ -39,32 +39,13 @@ verifyToken = async (req, res, next) => {
     return res.status(403).send({ message: "No token provided!" });
   }
 
-  try {
-    const decoded = await promisify(jwt.verify)(token, process,env.JWT_SECRET);
-
-    const reply = await promisify(redisClient.get).bind(redisClient)(token);
-
-    if (reply) {
-      return res.status(401).send({ message: "Unauthorized! Token is blacklisted"});
-    }
-
-    req.userId = decoded.id;
-    req.user = {
-      id: decoded.id,
-    };
-    next();
-  } catch (err) {
-    return res.status(401).send({ message: "Unauthorized!"});
-  }
-};
-
-  /*jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).send({ message: "Unauthorized!" });
     }
 
     // Check if the token is blacklisted
-    redisClient.get(token, (err, reply) => {
+    /*redisClient.get(token, (err, reply) => {
       if (err) {
         return res.status(500).send({ message: 'Error checking token'});
       }
@@ -72,14 +53,14 @@ verifyToken = async (req, res, next) => {
       if (reply) {
         return res.status(401).send({ message: 'Unauthorized! Token is blacklisted'});
       }
-    })
+    })*/
     req.userId = decoded.id;
     req.user = {
       id: decoded.id,
     }
     next();
   });
-};*/
+};
 
 isAdmin = (req, res, next) => {
   User.findById(req.userId).exec((err, user) => {
