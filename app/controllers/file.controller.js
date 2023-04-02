@@ -148,10 +148,49 @@ const getPhotos = async (req, res) => {
   }
 };
 
+const deletePhoto = (req, res) => {
+  Photo.findByIdAndRemove(req.params.photoId, (err, photo) => {
+    if (err) {
+      res.status(500).send({ message: "Error deleting photo"});
+      return;
+    }
+
+    if (!photo) {
+      res.status(404).send({ message: "Photo not found" });
+      return;
+    }
+
+    res.status(200).send({ message: "Photo deleted successfully!" });
+  });
+};
+
+const approvePhoto = (req, res) => {
+  Photo.findByIdAndUpdate(
+    req.params.photoId,
+    { aprrovePhoto: true },
+    { new: true },
+    (err, photo) => {
+      if (err) {
+        res.status(500).send({ message: "Error aprroving photo" });
+        return;
+      }
+
+      if (!photo) {
+        res.status(404).send({ message: "Photo not found" });
+        return;
+      }
+
+      res.status(200).send({ message: "Photo approved successfully!" });
+    }
+  );
+};
+
   module.exports = {
     upload,
     getListFiles,
     download,
     vote,
     getPhotos,
+    deletePhoto,
+    approvePhoto,
   };

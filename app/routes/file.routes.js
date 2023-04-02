@@ -18,6 +18,8 @@ let routes = (app) => {
   router.get("/api/photos/files/:name", [authJwt.verifyToken] ,controller.download);
   router.get("/api/photos/get-photos", controller.getPhotos);
   router.post("/api/photos/vote/:photoId", [authJwt.verifyToken, controller.vote]);
+  router.delete("/api/photos/:photoId", [authJwt.verifyToken, authJwt.isAdmin], controller.deletePhoto);
+  router.put("/api/photos/:photoId/approve", [authJwt.verifyToken, authJwt.isAdmin], controller.approvePhoto);
 
   app.use(router);
 };
