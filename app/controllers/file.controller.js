@@ -167,7 +167,7 @@ const deletePhoto = (req, res) => {
 const approvePhoto = (req, res) => {
   Photo.findByIdAndUpdate(
     req.params.photoId,
-    { aprrovePhoto: true },
+    { approved: true },
     { new: true },
     (err, photo) => {
       if (err) {
@@ -180,7 +180,14 @@ const approvePhoto = (req, res) => {
         return;
       }
 
-      res.status(200).send({ message: "Photo approved successfully!" });
+      photo.save((err) => {
+        if (err) {
+          res.status(500).send({ message: "Error saving photo" });
+          return;
+        }
+      })
+
+      res.status(200).send({ message: "Photo approved and saved successfully!" });
     }
   );
 };

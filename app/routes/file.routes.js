@@ -17,7 +17,7 @@ let routes = (app) => {
   router.post("/api/photos/upload", [authJwt.verifyToken] ,controller.upload);
   router.get("/api/photos/files/:name", [authJwt.verifyToken] ,controller.download);
   router.get("/api/photos/get-photos", controller.getPhotos);
-  router.post("/api/photos/vote/:photoId", [authJwt.verifyToken, controller.vote]);
+  //router.put("/api/photos/vote/:photoId", [authJwt.verifyToken, controller.vote]);
   router.delete("/api/photos/:photoId", [authJwt.verifyToken, authJwt.isAdmin], controller.deletePhoto);
   router.put("/api/photos/:photoId/approve", [authJwt.verifyToken, authJwt.isAdmin], controller.approvePhoto);
 
