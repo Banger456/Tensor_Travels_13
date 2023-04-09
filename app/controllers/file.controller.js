@@ -17,8 +17,9 @@ const upload = async (req, res, next) => {
       return res.status(400).send({ message: "Please upload a file!" });
     } 
 
-    // Include the userId in the file name
-    const fileName = `${req.file.originalname}`;
+   
+    const providedFilename = req.body.filename || req.file.originalname;
+    const fileName = `${providedFilename}`;
 
     // Create a new blob in the bucket and upload the file data.
     const blob = bucket.file(fileName);
@@ -148,6 +149,19 @@ const getPhotos = async (req, res) => {
   }
 };
 
+const getUserPhotos = async (req, res) => {
+  const userId = req.userId;
+
+  try {
+    const photos = await Photo.find({ user: userId }).populate("category");
+
+    res.status(200).json(photos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "An error occurred while retrieving photos." });
+  }
+};
+
 const deletePhoto = (req, res) => {
   Photo.findByIdAndRemove(req.params.photoId, (err, photo) => {
     if (err) {
@@ -200,4 +214,5 @@ const approvePhoto = (req, res) => {
     getPhotos,
     deletePhoto,
     approvePhoto,
+    getUserPhotos,
   };
