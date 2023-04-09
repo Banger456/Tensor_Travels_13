@@ -6,6 +6,8 @@ const path = require('path');
 const fileRoutes = require('./app/routes/file.routes');
 const Photo = require('./app/models/photo.model');
 const redis = require("redis");
+const contestRoutes = require("./app/routes/contest.routes");
+const bodyParser = require("body-parser");
 
 let redisClient;
 (async () => {
@@ -28,9 +30,10 @@ const categoryRoutes = require("./app/routes/category.routes");
 
 
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-
-
+contestRoutes(app);
 
 dotenv.config();
 
