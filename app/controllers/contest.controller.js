@@ -1,4 +1,5 @@
 const Contest = require("../models/contestdate.model");
+const { sendEmail } = require("../helpers/email.helper");
 
 exports.getContestDates = async (req, res) => {
   try {
@@ -27,4 +28,18 @@ exports.setContestDates = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error updating contest dates" });
   }
+};
+
+exports.notifyWinners = async (req, res) => {
+  const winners = req.body.winners;
+
+  winners.forEach(async (winner) => {
+    await sendEmail({
+      to: winner.email,
+      subject: 'Congratulations, you won the contest!',
+      text: `Hello ${winner.name},\n\nCongratulations, you have won the photo contest! Your photo has been selected as one of the winners.\n\nRegards,\nTensor Travels Team.`,
+    });
+  });
+
+  res.json({ message: 'Winners notified' });
 };

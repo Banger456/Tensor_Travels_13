@@ -162,21 +162,49 @@ const getUserPhotos = async (req, res) => {
   }
 };
 
-const deletePhoto = (req, res) => {
-  Photo.findByIdAndRemove(req.params.photoId, (err, photo) => {
-    if (err) {
-      res.status(500).send({ message: "Error deleting photo"});
-      return;
-    }
-
+const deletePhoto = async (req, res) => {
+  try {
+    const photo = await Photo.findById(req.params.photoId);
     if (!photo) {
-      res.status(404).send({ message: "Photo not found" });
+      res.status(404).send({ message: "Photo Not Found!" });
       return;
     }
 
-    res.status(200).send({ message: "Photo deleted successfully!" });
-  });
+    const user = await User.findById(photo.user);
+    if (!user) {
+      res.status(404).send({ message: "User Not Found!" });
+      return;
+    }
+
+    // Send email to the user
+    const mailOptions = {
+      to: user.email,
+      subject: "Your Photo Has Been Deleted",
+      text: `Dear ${user.username},
+
+Your photo titled '${photo.fileName}' has been deleted by an admin. If you have any questions or believe this action was taken in error, please contact our support team.
+
+Best regards,
+Tensor Travels Team`,
+    };
+
+    try {
+      await sendEmail(mailOptions);
+    } catch (error) {
+      console.error("Failed to send email:", error);
+    }
+
+    // Delete the photo
+    await Photo.deleteOne({ _id: req.params.photoId });
+
+    res.status(200).send({ message: "Photo Deleted Successfully!" });
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || "Some error occurred while deleting the photo.",
+    });
+  }
 };
+
 
 const approvePhoto = (req, res) => {
   Photo.findByIdAndUpdate(
@@ -206,6 +234,51 @@ const approvePhoto = (req, res) => {
   );
 };
 
+const reportPhoto = async (req, res) => {
+  try {
+    const photoId = req.params.photoId;
+    const photo = await Photo.findById(photoId);
+    if (!photo) {
+      return res.status(404).send({ message: "Photo not found" });
+    }
+    if (!photo.canBeReported) {
+      return res.status(400).send({ message: "This photo cannot be reported." });
+    }
+    photo.reports += 1;
+    await photo.save();
+    res.status(200).send({ message: "Photo reported successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "An error occurred while reporting the photo." });
+  }
+};
+
+const getReportedPhotos = async (req, res) => {
+  try {
+    const reportedPhotos = await Photo.find({ reports: { $gt: 0 } }).populate("category").exec();
+    res.status(200).send(reportedPhotos);
+  } catch (err) {
+    res.status(500).send({ message: err.message || "Some error occurred while retrieving reported photos." });
+  }
+};
+
+const unreportPhoto = async (req, res) => {
+  try {
+    const photoId = req.params.photoId;
+    const photo = await Photo.findById(photoId);
+    if (!photo) {
+      return res.status(404).send({ message: "Photo not found" });
+    }
+    photo.reports = 0;
+    photo.canBeReported = false;
+    await photo.save();
+    res.status(200).send({ message: "Photo unreported successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "An error occurred while unreporting the photo." });
+  }
+};
+
   module.exports = {
     upload,
     getListFiles,
@@ -215,4 +288,7 @@ const approvePhoto = (req, res) => {
     deletePhoto,
     approvePhoto,
     getUserPhotos,
+    reportPhoto,
+    getReportedPhotos,
+    unreportPhoto,
   };
