@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const contestController = require("../controllers/contest.controller");
+const { authJwt } = require("../middlewares");
 
 module.exports = router;
 let routes = (app) => {

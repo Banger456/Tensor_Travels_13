@@ -1,5 +1,7 @@
 const Contest = require("../models/contestdate.model");
 const { sendEmail } = require("../helpers/email.helper");
+const User = require("../models/user.model");
+
 
 exports.getContestDates = async (req, res) => {
   try {
@@ -31,15 +33,55 @@ exports.setContestDates = async (req, res) => {
 };
 
 exports.notifyWinners = async (req, res) => {
-  const winners = req.body.winners;
+  const { winners } = req.body;
+  // Loop through categoryWinners
+  Object.keys(winners.categoryWinners).forEach(async (category) => {
+    const winner = winners.categoryWinners[category];
+    const user = await User.findById(winner.user);
 
-  winners.forEach(async (winner) => {
-    await sendEmail({
-      to: winner.email,
-      subject: 'Congratulations, you won the contest!',
-      text: `Hello ${winner.name},\n\nCongratulations, you have won the photo contest! Your photo has been selected as one of the winners.\n\nRegards,\nTensor Travels Team.`,
-    });
+    if (user) {
+      const subject = `Congratulations! You won in the ${category} category`;
+      const text = `Hi ${user.username},
+
+Congratulations! You have won in the ${category} category in our photo contest. Keep up the great work!
+
+Best regards,
+Tensor Travels Team`;
+
+      const mailOptions = {
+        to: user.email,
+        subject: subject,
+        text: text,
+      };
+
+      await sendEmail(mailOptions);
+    }
   });
 
-  res.json({ message: 'Winners notified' });
+  // Loop through overallTop3
+  winners.overallTop3.forEach(async (winner, index) => {
+    const user = await User.findById(winner.user);
+
+    if (user) {
+      const rank = index + 1;
+      const subject = `Congratulations! You are in the top ${rank} overall`;
+      const text = `Hi ${user.username},
+
+Congratulations! You have achieved rank ${rank} in the overall standings of our photo contest. Keep up the great work!
+
+Best regards,
+Tensor Travels Team`;
+
+      const mailOptions = {
+        to: user.email,
+        subject: subject,
+        text: text,
+      };
+
+      await sendEmail(mailOptions);
+    }
+  });
+
+  res.status(200).send({ message: "Winners notified successfully." });
 };
+
