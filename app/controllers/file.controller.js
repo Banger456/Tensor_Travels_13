@@ -4,6 +4,9 @@ const { format } = require("util");
 const { Storage } = require("@google-cloud/storage");
 const Photo = require('../models/photo.model.js')
 const Category = require("../models/category.model");
+const User = require('../models/user.model');
+const { sendEmail } = require('../helpers/email.helper');
+
 // Instantiate a storage client with credentials
 const storage = new Storage({ keyFilename: process.env.GCLOUD_APPLICATION_CREDENTIALS,
 projectId: process.env.GCLOUD_PROJECT });
@@ -196,6 +199,7 @@ Tensor Travels Team`,
 
     // Delete the photo
     await Photo.deleteOne({ _id: req.params.photoId });
+
 
     res.status(200).send({ message: "Photo Deleted Successfully!" });
   } catch (err) {
