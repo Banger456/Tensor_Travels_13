@@ -63,7 +63,7 @@ const upload = async (req, res, next) => {
   const newPhoto = new Photo({
     user: req.user.id, 
     url: publicUrl,
-    fileName: req.file.originalname,
+    fileName: fileName,
     category: foundCategory._id,
     approved: false,
     votes: 0,

@@ -14,7 +14,6 @@ exports.getContestDates = async (req, res) => {
 
 exports.setContestDates = async (req, res) => {
   const { endDate, startDate } = req.body;
-  console.log("Request body:", req.body);
   if (!endDate || !startDate) {
     return res.status(400).json({ message: "Missing required parameters" });
   }
